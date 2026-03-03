@@ -1,6 +1,6 @@
 # Production AI Agent Systems Architecture
 
-**Author**: KnightInAir (Yatin B.)
+**Author**: [Yatin Batra](https://www.linkedin.com/in/yatin-batra)
 
 ---
 
@@ -795,3 +795,11 @@ The model represents the straightforward component. The complex components are:
 Organizations that architect agents as distributed systems will deliver reliable, production-grade AI services. Organizations that architect agents as intelligent scripts will encounter infinite loops, security failures, and operational debugging nightmares.
 
 **Architectural Principle**: Focus on the runtime architecture. Model intelligence is a commodity; operational excellence is the differentiator.
+
+---
+
+## Copyright
+
+© 2026 [Yatin Batra](https://www.linkedin.com/in/yatin-batra). All rights reserved.
+
+This document may be shared and referenced with proper attribution.
