@@ -34,3 +34,6 @@ Treat model providers like any other flaky dependency. Use queues, async executi
 <p><strong>Bottom line:</strong><br>
 Agents don’t fail because the model is weak.  They fail because the system around the model was never designed like production software.</p>
 
+<!--stackedit_data:
+eyJoaXN0b3J5IjpbMTc2NTQ2MzQ0N119
+-->
