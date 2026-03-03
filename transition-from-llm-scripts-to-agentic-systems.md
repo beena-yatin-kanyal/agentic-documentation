@@ -1,71 +1,5 @@
 # Production AI Agent Systems Architecture
 
-**Author**: [Yatin Batra](https://www.linkedin.com/in/yatin-batra)
-
----
-
-## Executive Summary
-
-The prevailing mental model for AI agents—LLM + prompt + tools in a loop—works adequately for prototypes and demonstrations. It fails catastrophically in production environments.
-
-Production agents are not scripts that execute and exit. They are long-lived, stateful services that must handle concurrent users, maintain isolated memory across sessions, and recover from tool failures. At this architectural crossroads, teams transition from "AI engineering" to **distributed systems engineering**.
-
-This document establishes the architectural foundations, operational patterns, and governance frameworks required to build production-grade AI agent systems.
-
----
-
-## Table of Contents
-
-1. [Part I: Foundational Architecture](#part-i-foundational-architecture)
-   - The Agent Runtime Harness
-   - Pillar 1: Durability and Checkpointing
-   - Pillar 2: Multi-Tenancy and Isolation
-   - Pillar 3: Operational Scalability
-
-2. [Part II: Governance and Authorization](#part-ii-governance-and-authorization)
-   - The Authority Model
-   - Three-Tier Authorization Framework
-   - Composable Service Architecture
-
-3. [Part III: Production Failure Modes](#part-iii-production-failure-modes)
-   - Failure Mode 1: Infinite Iteration Loops
-   - Failure Mode 2: Context Window Exhaustion
-   - Failure Mode 3: Error Propagation
-
-4. [Part IV: Observability and Operational Intelligence](#part-iv-observability-and-operational-intelligence)
-   - The Fourth Pillar
-   - Observability Requirements
-   - Operational Metrics
-
-5. [Part V: Elicitation Pattern Design](#part-v-elicitation-pattern-design)
-   - Architecture for Structured Information Gathering
-   - Elicitation Pattern Catalog
-
-6. [Part VI: Execution Strategy Selection](#part-vi-execution-strategy-selection)
-   - Plan-and-Execute Pattern
-   - ReAct Pattern
-   - Hybrid Pattern: Plan-then-React
-
-7. [Part VII: Tool Interface Design](#part-vii-tool-interface-design)
-   - Tool Design Principles
-   - Pattern: Decision-Ready Interfaces
-
-8. [Part VIII: Multi-Agent Composition](#part-viii-multi-agent-composition)
-   - Pattern: Event-Driven Agent Mesh
-   - Pattern: Service Registry
-   - Pattern: API Gateway
-
-9. [Part IX: Error Recovery Architecture](#part-ix-error-recovery-architecture)
-   - Recovery Strategy Classification
-   - Strategy Selection Algorithm
-
-10. [Part X: State Machine Architecture](#part-x-state-machine-architecture)
-    - State Diagram
-    - Transition Rules
-    - State-Specific Behavior
-
----
-
 ## Part I: Foundational Architecture
 
 ### The Agent Runtime Harness
@@ -795,11 +729,3 @@ The model represents the straightforward component. The complex components are:
 Organizations that architect agents as distributed systems will deliver reliable, production-grade AI services. Organizations that architect agents as intelligent scripts will encounter infinite loops, security failures, and operational debugging nightmares.
 
 **Architectural Principle**: Focus on the runtime architecture. Model intelligence is a commodity; operational excellence is the differentiator.
-
----
-
-## Copyright
-
-© 2026 [Yatin Batra](https://www.linkedin.com/in/yatin-batra). All rights reserved.
-
-This document may be shared and referenced with proper attribution.
