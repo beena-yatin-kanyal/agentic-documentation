@@ -642,6 +642,15 @@ Error Occurred
 │                             └─ NO → SKIP (continue with degraded functionality)
 ```
 
+  <!-- Transient Branch -->
+
+  <!-- Invalid Input Branch -->
+
+  <!-- Not Found Branch -->
+
+  <!-- Default Branch -->
+
+
 **Key Decision Points**:
 
 1. **Permission errors** always require immediate escalation (no retry)
@@ -667,6 +676,8 @@ IDLE → PLANNING → EXECUTING → WAITING_TOOL
                              → COMPLETE
                              → ERROR
 ```
+
+
 
 ### Transition Rules
 
@@ -711,6 +722,8 @@ State duration averages:
 - WAITING_USER: 2m 34s
 - WAITING_TOOL: 1.2s
 ```
+
+
 
 ---
 
