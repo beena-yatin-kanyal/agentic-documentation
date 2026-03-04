@@ -34,9 +34,20 @@
             --border: rgba(0, 0, 0, 0.08);
             --border-emphasis: rgba(0, 0, 0, 0.12);
             --code-bg: #f5f5f4;
-            --accent: #2563eb;
-            --accent-hover: #1d4ed8;
+            --accent: #92400e;
+            --accent-hover: #78350f;
             --toc-width: 280px;
+
+            /* Spacing System (8px base) */
+            --space-1: 4px;
+            --space-2: 8px;
+            --space-3: 12px;
+            --space-4: 16px;
+            --space-5: 20px;
+            --space-6: 24px;
+            --space-7: 28px;
+            --space-8: 32px;
+            --space-10: 40px;
         }
 
         body {
@@ -48,11 +59,7 @@
             font-variant-numeric: tabular-nums;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            padding-top: 33px;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
+            padding-top: 36px;
         }
 
         /* Series Header */
@@ -61,15 +68,15 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 32px;
+            height: 36px;
             background: var(--parchment);
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 16px;
+            padding: 0 var(--space-5);
             z-index: 1001;
-            font-size: 12px;
+            font-size: 13px;
         }
 
         #series-header .series-info {
@@ -159,15 +166,16 @@
             transform: translateX(-50%) translateY(0);
         }
 
+
         /* Progress Bar */
         #progress-bar {
             position: fixed;
-            top: 32px;
+            top: 36px;
             left: 0;
             width: 0;
-            height: 1px;
-            background: var(--ink-tertiary);
-            opacity: 0.3;
+            height: 2px;
+            background: var(--accent);
+            opacity: 0.5;
             z-index: 1000;
             transition: width 0.1s ease;
         }
@@ -182,13 +190,13 @@
         /* Table of Contents */
         #toc-sidebar {
             position: sticky;
-            top: 33px;
+            top: 36px;
             width: var(--toc-width);
-            height: calc(100vh - 33px);
+            height: calc(100vh - 36px);
             overflow-y: auto;
             background: var(--parchment);
             border-right: 1px solid var(--border);
-            padding: 24px 16px;
+            padding: var(--space-6) var(--space-4);
             flex-shrink: 0;
         }
 
@@ -209,7 +217,7 @@
             font-size: 16px;
             font-weight: 600;
             color: var(--ink);
-            margin-bottom: 16px;
+            margin-bottom: var(--space-3);
             line-height: 1.3;
         }
 
@@ -240,8 +248,8 @@
 
         #toc a.active {
             color: var(--ink);
-            border-left-color: var(--ink-secondary);
-            font-weight: 500;
+            border-left-color: var(--accent);
+            font-weight: 600;
         }
 
         #toc .toc-h2 {
@@ -263,10 +271,10 @@
         /* Scroll to Top Button */
         #scroll-to-top {
             position: fixed;
-            bottom: 24px;
-            right: 24px;
-            width: 40px;
-            height: 40px;
+            bottom: var(--space-6);
+            right: var(--space-6);
+            width: var(--space-10);
+            height: var(--space-10);
             background: var(--parchment);
             color: var(--ink);
             border: 1px solid var(--border-emphasis);
@@ -296,17 +304,17 @@
         #toc-toggle {
             display: none;
             position: fixed;
-            bottom: 24px;
-            left: 24px;
-            width: 40px;
-            height: 40px;
+            bottom: var(--space-6);
+            left: var(--space-6);
+            width: var(--space-10);
+            height: var(--space-10);
             background: var(--parchment);
             color: var(--ink);
             border: 1px solid var(--border-emphasis);
             border-radius: 6px;
             cursor: pointer;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
-            z-index: 100;
+            z-index: 201;
             font-size: 18px;
             transition: border-color 0.15s ease;
             align-items: center;
@@ -315,6 +323,24 @@
 
         #toc-toggle:hover {
             border-color: var(--ink-tertiary);
+        }
+
+        /* Mobile TOC Backdrop */
+        #toc-backdrop {
+            display: none;
+            position: fixed;
+            top: 36px;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 36px);
+            background: rgba(26, 20, 15, 0.4);
+            z-index: 199;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #toc-backdrop.visible {
+            opacity: 1;
         }
 
         /* Main Content */
@@ -327,7 +353,7 @@
             background: var(--parchment);
             max-width: 1400px;
             margin: 0 auto;
-            padding: 40px 60px;
+            padding: var(--space-10) 48px;
         }
 
         /* Typography */
@@ -625,6 +651,24 @@
             color: var(--ink);
         }
 
+        .series-list li.completed a {
+            cursor: pointer;
+            transition: color 0.15s ease;
+        }
+
+        .series-list li.completed a:hover {
+            color: var(--ink);
+        }
+
+        .series-list li.coming a {
+            cursor: pointer;
+            transition: color 0.15s ease;
+        }
+
+        .series-list li.coming a:hover {
+            color: var(--ink);
+        }
+
         .series-list li.coming {
             color: var(--ink-secondary);
         }
@@ -650,14 +694,21 @@
         /* Footer */
         footer {
             margin-top: 0;
-            padding: 2em 0 1.5em;
+            padding: 1.5em 0 1em;
             color: var(--ink-tertiary);
             font-size: 12px;
             text-align: center;
         }
 
+        footer .contribution-note {
+            margin-top: var(--space-2);
+            color: var(--ink-secondary);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
         footer .copyright {
-            margin-top: 8px;
+            margin-top: 6px;
         }
 
         footer a {
@@ -685,10 +736,10 @@
         @media (max-width: 1024px) {
             #toc-sidebar {
                 position: fixed;
-                top: 33px;
+                top: 36px;
                 left: -100%;
                 width: 280px;
-                height: calc(100vh - 33px);
+                height: calc(100vh - 36px);
                 z-index: 200;
                 box-shadow: 4px 0 12px rgba(0, 0, 0, 0.1);
                 transition: left 0.3s ease;
@@ -704,13 +755,17 @@
                 justify-content: center;
             }
 
+            #toc-backdrop {
+                display: block;
+            }
+
             #scroll-to-top {
-                bottom: 24px;
+                bottom: var(--space-6);
                 right: 76px;
             }
 
             .content-card {
-                padding: 28px 18px;
+                padding: var(--space-7) 18px;
             }
 
             .heading-anchor {
@@ -719,12 +774,12 @@
 
             footer {
                 font-size: 12px;
-                padding: 1.5em 16px 1em;
+                padding: 1.5em var(--space-4) 1em;
             }
 
             #series-header {
                 font-size: 12px;
-                padding: 0 8px;
+                padding: 0 var(--space-2);
             }
 
             #series-header .series-divider {
@@ -787,6 +842,40 @@
             }
         }
 
+
+        /* Print Styles */
+        @media print {
+
+            #toc-sidebar,
+            #toc-toggle,
+            #scroll-to-top,
+            #progress-bar,
+            #series-header,
+            #welcome-modal,
+            .coming-soon-toast,
+            .copy-button {
+                display: none;
+            }
+
+            body {
+                background: white;
+                padding-top: 0;
+                -webkit-user-select: text;
+                -moz-user-select: text;
+                -ms-user-select: text;
+                user-select: text;
+            }
+
+            .content-card {
+                max-width: 100%;
+            }
+
+            a {
+                color: var(--ink);
+                text-decoration: underline;
+            }
+        }
+
         /* Welcome Modal */
         #welcome-modal {
             position: fixed;
@@ -794,7 +883,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(26, 20, 15, 0.4);
             backdrop-filter: blur(4px);
             -webkit-backdrop-filter: blur(4px);
             display: flex;
@@ -814,7 +903,8 @@
             background: var(--parchment);
             border: 1px solid var(--border-emphasis);
             border-radius: 6px;
-            padding: 32px;
+            border-top: 2px solid var(--accent);
+            padding: var(--space-8);
             max-width: 500px;
             width: 90%;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
@@ -822,47 +912,39 @@
         }
 
         .modal-content h2 {
-            margin: 0 0 12px 0;
+            margin: 0 0 var(--space-3) 0;
             padding: 0;
             border: none;
             font-size: 1.43em;
             color: var(--ink);
             font-weight: 600;
             line-height: 1.2;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
         }
 
         .modal-content p {
             color: var(--ink-secondary);
             line-height: 1.5;
-            margin-bottom: 10px;
+            margin-bottom: var(--space-3);
             font-size: 13px;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
         }
 
         .modal-content .modal-subtitle {
             font-size: 12px;
-            margin-top: 16px;
+            margin-top: var(--space-4);
         }
 
         .modal-actions {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 16px;
-            margin-top: 20px;
+            gap: var(--space-4);
+            margin-top: var(--space-5);
         }
 
         .modal-content label {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: var(--space-2);
             cursor: pointer;
             user-select: none;
             font-size: 12px;
@@ -902,97 +984,45 @@
 
         .modal-content label span {
             color: var(--ink-secondary);
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-        }
-
-        .modal-content input,
-        .modal-content button {
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
         }
 
         .modal-button {
-            background: var(--ink);
-            color: var(--parchment);
-            border: none;
-            padding: 8px 20px;
+            background: var(--parchment);
+            color: var(--accent);
+            border: 1.5px solid var(--accent);
+            padding: var(--space-2) var(--space-5);
             border-radius: 4px;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 500;
             cursor: pointer;
             white-space: nowrap;
-            transition: background 0.15s ease;
+            transition: all 0.15s ease;
         }
 
         .modal-button:hover {
-            background: var(--ink-secondary);
-        }
-
-        .modal-footer {
-            margin-top: 20px;
-            padding-top: 16px;
-            border-top: 1px solid var(--border);
-            font-size: 11px;
-            color: var(--ink-muted);
-            line-height: 1.4;
-            text-align: center;
-        }
-
-        /* Print Styles */
-        @media print {
-
-            #toc-sidebar,
-            #toc-toggle,
-            #scroll-to-top,
-            #progress-bar,
-            #series-header,
-            #welcome-modal,
-            .coming-soon-toast,
-            .copy-button {
-                display: none;
-            }
-
-            body {
-                background: white;
-                padding-top: 0;
-                -webkit-user-select: text;
-                -moz-user-select: text;
-                -ms-user-select: text;
-                user-select: text;
-            }
-
-            .content-card {
-                max-width: 100%;
-            }
-
-            a {
-                color: var(--ink);
-                text-decoration: underline;
-            }
+            background: var(--accent);
+            color: var(--parchment);
         }
 
         @media (max-width: 640px) {
             .modal-content {
-                padding: 24px 20px;
+                padding: var(--space-6) var(--space-5);
             }
 
             .modal-actions {
                 flex-direction: column;
                 align-items: stretch;
-                gap: 12px;
+                gap: var(--space-3);
             }
 
             .modal-actions label {
                 justify-content: center;
+                order: 2;
             }
 
             .modal-button {
                 width: 100%;
+                order: 1;
             }
         }
     </style>
@@ -1012,6 +1042,9 @@
 
     <div id="progress-bar"></div>
 
+    <!-- Mobile TOC Backdrop -->
+    <div id="toc-backdrop"></div>
+
     <!-- Welcome Modal -->
     <div id="welcome-modal">
         <div class="modal-content">
@@ -1028,10 +1061,6 @@
                     <span>Don't show again</span>
                 </label>
                 <button class="modal-button" onclick="closeWelcomeModal()">Start Reading</button>
-            </div>
-
-            <div class="modal-footer">
-                UI built with Claude Code
             </div>
         </div>
     </div>
@@ -1060,18 +1089,31 @@
         const docTitleEl = document.getElementById('doc-title');
         const tocSidebar = document.getElementById('toc-sidebar');
         const tocToggle = document.getElementById('toc-toggle');
+        const tocBackdrop = document.getElementById('toc-backdrop');
         const progressBar = document.getElementById('progress-bar');
         const scrollToTopBtn = document.getElementById('scroll-to-top');
 
         // Toggle mobile TOC
         tocToggle.addEventListener('click', () => {
-            tocSidebar.classList.toggle('open');
+            const isOpen = tocSidebar.classList.toggle('open');
+            if (isOpen) {
+                tocBackdrop.classList.add('visible');
+            } else {
+                tocBackdrop.classList.remove('visible');
+            }
+        });
+
+        // Close TOC when clicking backdrop
+        tocBackdrop.addEventListener('click', () => {
+            tocSidebar.classList.remove('open');
+            tocBackdrop.classList.remove('visible');
         });
 
         // Close TOC when clicking a link on mobile
         tocEl.addEventListener('click', (e) => {
             if (e.target.tagName === 'A' && window.innerWidth <= 1024) {
                 tocSidebar.classList.remove('open');
+                tocBackdrop.classList.remove('visible');
             }
         });
 
@@ -1228,67 +1270,6 @@
             });
         }
 
-        // Add series navigation
-        function addSeriesNavigation() {
-            const seriesNav = document.createElement('div');
-            seriesNav.className = 'series-navigation';
-            seriesNav.innerHTML = `
-                <h3>The Agent Runtime Series</h3>
-                <ul class="series-list">
-                    <li class="current">
-                        <span class="series-icon">✓</span>
-                        <span>Part 1: Foundational Architecture</span>
-                        <span class="series-status">Current</span>
-                    </li>
-                    <li class="coming">
-                        <span class="series-icon">→</span>
-                        <span>Part 2: Memory & Context Management</span>
-                        <span class="series-status">Coming Soon</span>
-                    </li>
-                    <li class="planned">
-                        <span class="series-icon">○</span>
-                        <span>Part 3: Multi-Agent Systems</span>
-                        <span class="series-status">Planned</span>
-                    </li>
-                    <li class="planned">
-                        <span class="series-icon">○</span>
-                        <span>Part 4: Production Operations</span>
-                        <span class="series-status">Planned</span>
-                    </li>
-                    <li class="planned">
-                        <span class="series-icon">○</span>
-                        <span>Part 5: Advanced Patterns</span>
-                        <span class="series-status">Planned</span>
-                    </li>
-                    <li class="planned">
-                        <span class="series-icon">○</span>
-                        <span>Part 6: Elicitation & Recovery</span>
-                        <span class="series-status">Planned</span>
-                    </li>
-                    <li class="planned">
-                        <span class="series-icon">○</span>
-                        <span>Part 7: Tool Design Principles</span>
-                        <span class="series-status">Planned</span>
-                    </li>
-                    <li class="planned">
-                        <span class="series-icon">○</span>
-                        <span>Part 8: State Machine Architecture</span>
-                        <span class="series-status">Planned</span>
-                    </li>
-                    <li class="planned">
-                        <span class="series-icon">○</span>
-                        <span>Part 9: Execution Strategies</span>
-                        <span class="series-status">Planned</span>
-                    </li>
-                    <li class="planned">
-                        <span class="series-icon">○</span>
-                        <span>Part 10: Observability & Intelligence</span>
-                        <span class="series-status">Planned</span>
-                    </li>
-                </ul>
-            `;
-            contentEl.appendChild(seriesNav);
-        }
 
         // Add footer with copyright
         function addFooter() {
@@ -1304,10 +1285,12 @@
                     </a>
                     · All rights reserved
                 </div>
+                <div class="contribution-note">
+                    Found an error or want to improve something? Corrections and suggestions are welcome —
+                    <a href="https://github.com/beena-yatin-kanyal/agentic-documentation" target="_blank" rel="noopener noreferrer">open a PR on GitHub</a>
+                </div>
                 <div class="copyright">
                     This document may be shared and referenced with proper attribution.
-                    <br>
-                    <a href="https://github.com/beena-yatin-kanyal/agentic-documentation" target="_blank" rel="noopener noreferrer" style="color: var(--ink-muted); text-decoration: none; font-size: 11px;">Fork on GitHub</a>
                 </div>
             `;
             contentEl.appendChild(footer);
@@ -1339,6 +1322,129 @@
             }
         });
 
+        // Series configuration
+        const seriesConfig = {
+            1: {
+                file: 'transition-from-llm-scripts-to-agentic-systems.md',
+                title: 'Part 1: Foundational Architecture',
+                shortTitle: 'Foundational Architecture'
+            },
+            2: {
+                file: 'part-2-memory-and-context-management.md',
+                title: 'Part 2: Memory & Context Management',
+                shortTitle: 'Memory & Context Management'
+            }
+        };
+
+        // Get current part from URL or default to 1
+        function getCurrentPart() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return parseInt(urlParams.get('part')) || 1;
+        }
+
+        // Update series header
+        function updateSeriesHeader(currentPart) {
+            const seriesPartEl = document.querySelector('.series-part');
+            const prevBtn = document.querySelector('.series-nav-btn.prev');
+            const nextBtn = document.querySelector('.series-nav-btn.next');
+
+            const config = seriesConfig[currentPart];
+            if (config) {
+                seriesPartEl.textContent = `Part ${currentPart} of 10: ${config.shortTitle}`;
+            }
+
+            // Update prev button
+            if (currentPart > 1 && seriesConfig[currentPart - 1]) {
+                prevBtn.disabled = false;
+                prevBtn.onclick = () => navigateToPart(currentPart - 1);
+            } else {
+                prevBtn.disabled = true;
+            }
+
+            // Update next button
+            if (seriesConfig[currentPart + 1]) {
+                nextBtn.disabled = false;
+                nextBtn.onclick = () => navigateToPart(currentPart + 1);
+            } else {
+                nextBtn.disabled = false;
+                nextBtn.onclick = () => showComingSoonToast(currentPart + 1);
+            }
+        }
+
+        // Navigate to a different part
+        function navigateToPart(partNumber) {
+            const url = new URL(window.location);
+            url.searchParams.set('part', partNumber);
+            window.location.href = url.toString();
+        }
+
+        // Update series navigation list
+        function updateSeriesNavigation(currentPart) {
+            const seriesNav = document.createElement('div');
+            seriesNav.className = 'series-navigation';
+
+            let listItems = '';
+            for (let i = 1; i <= 10; i++) {
+                let className, icon, status;
+
+                if (seriesConfig[i]) {
+                    if (i === currentPart) {
+                        className = 'current';
+                        icon = '✓';
+                        status = 'Current';
+                    } else if (i < currentPart) {
+                        className = 'completed';
+                        icon = '✓';
+                        status = 'Read';
+                    } else {
+                        className = 'coming';
+                        icon = '→';
+                        status = 'Available';
+                    }
+                    const partTitle = i === 1 ? 'Foundational Architecture' :
+                                    i === 2 ? 'Memory & Context Management' :
+                                    `Part ${i} Title`;
+                    listItems += `
+                        <li class="${className}">
+                            <span class="series-icon">${icon}</span>
+                            <a href="?part=${i}" style="color: inherit; text-decoration: none;">
+                                <span>Part ${i}: ${partTitle}</span>
+                            </a>
+                            <span class="series-status">${status}</span>
+                        </li>`;
+                } else {
+                    className = 'planned';
+                    icon = '○';
+                    status = 'Planned';
+                    const titles = [
+                        '', '', '', // Parts 1-2 covered above
+                        'Multi-Agent Systems',
+                        'Production Operations',
+                        'Advanced Patterns',
+                        'Elicitation & Recovery',
+                        'Tool Design Principles',
+                        'State Machine Architecture',
+                        'Execution Strategies',
+                        'Observability & Intelligence'
+                    ];
+                    listItems += `
+                        <li class="${className}">
+                            <span class="series-icon">${icon}</span>
+                            <span>Part ${i}: ${titles[i]}</span>
+                            <span class="series-status">${status}</span>
+                        </li>`;
+                }
+            }
+
+            seriesNav.innerHTML = `
+                <h3>The Agent Runtime Series</h3>
+                <ul class="series-list">
+                    ${listItems}
+                </ul>
+            `;
+            contentEl.appendChild(seriesNav);
+        }
+
         // Wait for mermaid to be ready, then load markdown
         async function loadDocument() {
             // Wait for mermaid to be ready
@@ -1346,9 +1452,27 @@
                 await new Promise(resolve => setTimeout(resolve, 50));
             }
 
+            const currentPart = getCurrentPart();
+            const config = seriesConfig[currentPart];
+
+            if (!config) {
+                contentEl.innerHTML = `
+                    <h1>Part Not Found</h1>
+                    <p>The requested part does not exist yet.</p>
+                    <p><a href="?part=1">Return to Part 1</a></p>
+                `;
+                return;
+            }
+
+            // Update page title
+            document.title = `${config.title} - The Agent Runtime`;
+
+            // Update series header
+            updateSeriesHeader(currentPart);
+
             loadingEl.style.display = 'block';
 
-            fetch('transition-from-llm-scripts-to-agentic-systems.md')
+            fetch(config.file)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Failed to load markdown file');
@@ -1369,7 +1493,7 @@
                     // Generate TOC and enhancements after content loads
                     generateTOC();
                     addCopyButtons();
-                    // addSeriesNavigation();
+                    updateSeriesNavigation(currentPart);
                     addFooter();
                     addReadTime();
                     updateScrollState();
@@ -1394,6 +1518,7 @@ npx http-server -p 8000</code></pre>
                     `;
                 });
         }
+
 
         // Welcome Modal
         function closeWelcomeModal() {
@@ -1426,15 +1551,27 @@ npx http-server -p 8000</code></pre>
         checkWelcomeModal();
 
         // Series Navigation
-        function showComingSoonToast() {
+        function showComingSoonToast(partNumber) {
+            const partTitles = {
+                3: 'Part 3: Multi-Agent Systems',
+                4: 'Part 4: Production Operations',
+                5: 'Part 5: Advanced Patterns',
+                6: 'Part 6: Elicitation & Recovery',
+                7: 'Part 7: Tool Design Principles',
+                8: 'Part 8: State Machine Architecture',
+                9: 'Part 9: Execution Strategies',
+                10: 'Part 10: Observability & Intelligence'
+            };
+
             // Create toast if it doesn't exist
             let toast = document.querySelector('.coming-soon-toast');
             if (!toast) {
                 toast = document.createElement('div');
                 toast.className = 'coming-soon-toast';
-                toast.textContent = 'Part 2: Memory & Context Management — Coming Soon';
                 document.body.appendChild(toast);
             }
+
+            toast.textContent = `${partTitles[partNumber] || `Part ${partNumber}`} — Coming Soon`;
 
             // Show toast
             toast.classList.add('visible');
@@ -1445,59 +1582,6 @@ npx http-server -p 8000</code></pre>
             }, 3000);
         }
 
-        // Handle series navigation clicks
-        document.querySelector('.series-nav-btn.next').addEventListener('click', () => {
-            showComingSoonToast();
-        });
-
-        document.querySelector('.series-nav-btn.prev').addEventListener('click', () => {
-            // For Part 1, scroll to top
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-
-        // Prevent copy on main content (except code blocks)
-        document.addEventListener('copy', (e) => {
-            const selection = globalThis.getSelection();
-            if (!selection || selection.toString().length === 0) {
-                return;
-            }
-
-            // Check if selection is within a code block
-            const range = selection.getRangeAt(0);
-            const container = range.commonAncestorContainer;
-            const element = container.nodeType === 3 ? container.parentElement : container;
-
-            // Allow copying from code blocks
-            if (element.closest('pre') || element.closest('code')) {
-                return;
-            }
-
-            // Prevent copying other content
-            e.preventDefault();
-
-            // Show a subtle message
-            const toast = document.createElement('div');
-            toast.className = 'coming-soon-toast visible';
-            toast.textContent = 'Content is protected. Use code copy buttons for snippets.';
-            document.body.appendChild(toast);
-
-            setTimeout(() => {
-                toast.classList.remove('visible');
-                setTimeout(() => toast.remove(), 300);
-            }, 2500);
-        });
-
-        // Prevent right-click context menu on main content
-        document.addEventListener('contextmenu', (e) => {
-            const target = e.target;
-
-            // Allow right-click on code blocks and inputs
-            if (target.closest('pre') || target.closest('code') || target.closest('input')) {
-                return;
-            }
-
-            e.preventDefault();
-        });
 
         // Start loading
         loadDocument();
