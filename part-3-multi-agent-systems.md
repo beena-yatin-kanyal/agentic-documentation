@@ -382,54 +382,29 @@ graph TD
 **Code Snippet**:
 ```python
 class OrderFulfillmentOrchestrator:
-    """Orchestrates multi-agent order fulfillment workflow"""
-
-    def __init__(
-        self,
-        payment_agent: PaymentAgent,
-        inventory_agent: InventoryAgent,
-        shipping_agent: ShippingAgent
-    ):
-        self.payment = payment_agent
-        self.inventory = inventory_agent
-        self.shipping = shipping_agent
+    """Centralized coordination of multi-step workflow with rollback"""
 
     async def fulfill_order(self, order_id: str):
-        """Orchestrate complete fulfillment workflow"""
-
         # Step 1: Validate payment
         payment_result = await self.payment.validate(order_id)
         if not payment_result.success:
-            return WorkflowResult(
-                status="failed",
-                step="payment",
-                reason=payment_result.error
-            )
+            return WorkflowResult(status="failed", step="payment")
 
         # Step 2: Reserve inventory
         inventory_result = await self.inventory.reserve(order_id)
         if not inventory_result.success:
-            # Rollback: refund payment
-            await self.payment.refund(order_id)
-            return WorkflowResult(
-                status="failed",
-                step="inventory",
-                reason=inventory_result.error
-            )
+            await self.payment.refund(order_id)  # Rollback step 1
+            return WorkflowResult(status="failed", step="inventory")
 
         # Step 3: Schedule shipping
         shipping_result = await self.shipping.schedule(order_id)
         if not shipping_result.success:
-            # Rollback: release inventory and refund
+            # Rollback steps 1 and 2
             await self.inventory.release(order_id)
             await self.payment.refund(order_id)
-            return WorkflowResult(
-                status="failed",
-                step="shipping",
-                reason=shipping_result.error
-            )
+            return WorkflowResult(status="failed", step="shipping")
 
-        return WorkflowResult(status="success")
+        return WorkflowResult(status="success")  # All steps completed
 ```
 
 **Architectural Analysis**:
@@ -618,82 +593,36 @@ class AgentRegistration:
     metadata: Dict               # Tags, region, cost, etc.
 ```
 
-### Registration and Discovery
+### Registration and Discovery Pattern
 
 ```python
 class AgentRegistry:
-    """Service registry for agent discovery"""
+    """Service registry enabling dynamic agent discovery"""
 
-    def __init__(self, storage: RedisStore):
-        self.storage = storage
-
-    async def register(self, registration: AgentRegistration):
-        """Agent registers its capabilities"""
+    async def register(self, agent_id: str, capabilities: List[str], metadata: Dict):
+        """Agent registers its capabilities with metadata"""
+        # Store agent registration with TTL (requires periodic heartbeat)
         await self.storage.set(
-            key=f"agent:{registration.agent_id}",
-            value=registration.to_json(),
-            ttl=60  # Require periodic heartbeat
+            key=f"agent:{agent_id}",
+            value={"capabilities": capabilities, "metadata": metadata},
+            ttl=60  # Expire after 60s without heartbeat
         )
 
         # Index by capability for fast lookup
-        for capability in registration.capabilities:
-            await self.storage.add_to_set(
-                key=f"capability:{capability.name}",
-                value=registration.agent_id
-            )
+        for capability in capabilities:
+            await self.storage.add_to_set(f"capability:{capability}", agent_id)
 
-    async def discover(
-        self,
-        capability: str,
-        filters: Optional[Dict] = None
-    ) -> List[AgentRegistration]:
-        """Find agents with specific capability"""
+    async def discover(self, capability: str, filters: Dict = None) -> List[Agent]:
+        """Find agents providing specific capability"""
+        # Query indexed capability set
+        agent_ids = await self.storage.get_set(f"capability:{capability}")
 
-        # Get agent IDs with this capability
-        agent_ids = await self.storage.get_set(
-            f"capability:{capability}"
-        )
+        # Fetch agent details and apply filters (version, health, latency, etc.)
+        agents = [await self._get_agent(id) for id in agent_ids]
+        filtered = [a for a in agents if self._matches_filters(a, filters)]
 
-        # Fetch full registrations
-        agents = []
-        for agent_id in agent_ids:
-            registration = await self.storage.get(f"agent:{agent_id}")
-            if registration and self._matches_filters(registration, filters):
-                agents.append(registration)
-
-        # Sort by success rate and latency
-        return sorted(
-            agents,
-            key=lambda a: (a.success_rate, -a.avg_latency_ms),
-            reverse=True
-        )
-
-    def _matches_filters(
-        self,
-        registration: AgentRegistration,
-        filters: Optional[Dict]
-    ) -> bool:
-        """Apply filters (version, region, status, etc.)"""
-        if not filters:
-            return True
-
-        if "min_success_rate" in filters:
-            if registration.success_rate < filters["min_success_rate"]:
-                return False
-
-        if "max_latency_ms" in filters:
-            capability = next(
-                c for c in registration.capabilities
-                if c.name == filters["capability"]
-            )
-            if capability.avg_latency_ms > filters["max_latency_ms"]:
-                return False
-
-        if "status" in filters:
-            if registration.status != filters["status"]:
-                return False
-
-        return True
+        # Sort by quality metrics (success rate desc, latency asc)
+        return sorted(filtered, key=lambda a: (a.success_rate, -a.latency), reverse=True)
 ```
 
 ### Usage Example
@@ -789,98 +718,37 @@ class OrderOrchestrator:
 └──────────────────────────────────────────────────────────────┘
 ```
 
-**Implementation**:
+**Implementation Pattern**:
 
 ```python
-from enum import Enum
-import time
-import asyncio
-
-class CircuitState(Enum):
-    CLOSED = "closed"
-    OPEN = "open"
-    HALF_OPEN = "half_open"
-
 class CircuitBreaker:
-    """Circuit breaker for agent-to-agent calls"""
+    """Circuit breaker implementing fail-fast pattern for agent calls"""
 
-    def __init__(
-        self,
-        failure_threshold: int = 5,        # Open after 5 failures
-        timeout_seconds: int = 60,         # Try recovery after 60s
-        success_threshold: int = 2         # Close after 2 successes
-    ):
-        self.failure_threshold = failure_threshold
-        self.timeout_seconds = timeout_seconds
-        self.success_threshold = success_threshold
-
-        self.state = CircuitState.CLOSED
+    def __init__(self, failure_threshold=5, timeout_seconds=60):
+        self.state = CircuitState.CLOSED  # Start in closed (normal) state
         self.failure_count = 0
-        self.success_count = 0
-        self.last_failure_time = None
 
     async def call(self, func, *args, **kwargs):
-        """Execute function with circuit breaker protection"""
-
-        # Check if circuit is open
+        # If circuit is OPEN, fail immediately (no cascade)
         if self.state == CircuitState.OPEN:
             if self._should_attempt_reset():
-                self.state = CircuitState.HALF_OPEN
-                self.success_count = 0
+                self.state = CircuitState.HALF_OPEN  # Try recovery
             else:
-                raise CircuitBreakerOpenError(
-                    f"Circuit open, retry after {self._time_until_retry()}s"
-                )
+                raise CircuitBreakerOpenError("Failing fast to prevent cascade")
 
         try:
-            # Execute function
             result = await func(*args, **kwargs)
-
-            # Success handling
-            self._on_success()
+            self._on_success()  # Reset failure count, close circuit
             return result
-
-        except Exception as e:
-            # Failure handling
-            self._on_failure()
+        except Exception:
+            self._on_failure()  # Increment failures, potentially open circuit
             raise
 
-    def _on_success(self):
-        """Handle successful call"""
-        if self.state == CircuitState.HALF_OPEN:
-            self.success_count += 1
-            if self.success_count >= self.success_threshold:
-                # Recovery successful
-                self.state = CircuitState.CLOSED
-                self.failure_count = 0
-        else:
-            # Reset failure count on success
-            self.failure_count = 0
-
     def _on_failure(self):
-        """Handle failed call"""
         self.failure_count += 1
-        self.last_failure_time = time.time()
-
+        # Open circuit when threshold exceeded (prevent further cascades)
         if self.failure_count >= self.failure_threshold:
             self.state = CircuitState.OPEN
-
-    def _should_attempt_reset(self) -> bool:
-        """Check if enough time has passed to try recovery"""
-        if self.last_failure_time is None:
-            return True
-        return (time.time() - self.last_failure_time) >= self.timeout_seconds
-
-    def _time_until_retry(self) -> float:
-        """Time until circuit will attempt reset"""
-        if self.last_failure_time is None:
-            return 0
-        elapsed = time.time() - self.last_failure_time
-        return max(0, self.timeout_seconds - elapsed)
-
-class CircuitBreakerOpenError(Exception):
-    """Raised when circuit breaker is open"""
-    pass
 ```
 
 ### Integration with Agent Calls
@@ -997,155 +865,64 @@ graph TD
 | **Response Time** | Route to fastest instance | Latency-sensitive applications |
 | **Consistent Hashing** | Sticky routing based on session ID | Stateful agents |
 
-**Implementation**:
+**Implementation Pattern**:
 
 ```python
 class AgentPool:
-    """Pool of agent instances with load balancing"""
+    """Horizontal scaling through multiple agent instances"""
 
-    def __init__(
-        self,
-        agent_class: type,
-        pool_size: int = 4,
-        strategy: str = "least_connections"
-    ):
-        self.strategy = strategy
-        self.instances = [
-            AgentInstance(
-                agent=agent_class(),
-                instance_id=f"instance-{i}"
-            )
-            for i in range(pool_size)
-        ]
-        self.round_robin_index = 0
+    def __init__(self, agent_class: type, pool_size: int = 4):
+        # Create pool of identical agent instances
+        self.instances = [agent_class() for _ in range(pool_size)]
+        self.instance_metrics = {}  # Track per-instance metrics
 
     async def execute(self, request: dict) -> dict:
-        """Execute request on agent from pool"""
-
-        # Select instance based on strategy
+        # Select instance based on load balancing strategy
         instance = self._select_instance(request)
 
+        # Execute on selected instance, track metrics
         try:
-            # Track active connections
-            instance.active_requests += 1
-
-            # Execute request
-            result = await instance.agent.handle_request(request)
-
-            # Update metrics
-            instance.total_requests += 1
-            instance.update_avg_response_time(result.duration_ms)
-
+            instance.active_requests += 1  # Increment before execution
+            result = await instance.handle_request(request)
             return result
-
         finally:
-            instance.active_requests -= 1
+            instance.active_requests -= 1  # Decrement after completion
 
-    def _select_instance(self, request: dict) -> 'AgentInstance':
-        """Select instance based on load balancing strategy"""
+    def _select_instance(self, request):
+        # Least connections: route to instance with fewest active requests
+        return min(self.instances, key=lambda i: i.active_requests)
 
-        if self.strategy == "round_robin":
-            instance = self.instances[self.round_robin_index]
-            self.round_robin_index = (self.round_robin_index + 1) % len(self.instances)
-            return instance
-
-        elif self.strategy == "least_connections":
-            return min(self.instances, key=lambda i: i.active_requests)
-
-        elif self.strategy == "response_time":
-            return min(self.instances, key=lambda i: i.avg_response_time_ms)
-
-        elif self.strategy == "consistent_hash":
-            # Sticky routing for stateful agents
-            session_id = request.get("session_id")
-            if session_id:
-                index = hash(session_id) % len(self.instances)
-                return self.instances[index]
-            # Fallback to round robin
-            return self._select_instance_round_robin()
-
-        else:
-            raise ValueError(f"Unknown strategy: {self.strategy}")
-
-@dataclass
-class AgentInstance:
-    """Single agent instance with metrics"""
-    agent: Any
-    instance_id: str
-    active_requests: int = 0
-    total_requests: int = 0
-    avg_response_time_ms: float = 0.0
-
-    def update_avg_response_time(self, duration_ms: float):
-        """Update rolling average response time"""
-        alpha = 0.2  # Exponential moving average factor
-        self.avg_response_time_ms = (
-            alpha * duration_ms +
-            (1 - alpha) * self.avg_response_time_ms
-        )
+        # Alternative strategies:
+        # - Round robin: rotate through instances
+        # - Response time: route to fastest instance
+        # - Consistent hash: sticky routing for stateful agents
 ```
 
 ### Auto-Scaling Agent Pools
 
 ```python
-class AutoScalingAgentPool(AgentPool):
-    """Agent pool with automatic scaling"""
+class AutoScalingAgentPool:
+    """Dynamically adjust pool size based on utilization"""
 
-    def __init__(
-        self,
-        agent_class: type,
-        min_instances: int = 2,
-        max_instances: int = 10,
-        target_utilization: float = 0.7
-    ):
-        super().__init__(agent_class, pool_size=min_instances)
-        self.min_instances = min_instances
-        self.max_instances = max_instances
+    def __init__(self, min_instances=2, max_instances=10, target_utilization=0.7):
+        self.instances = [AgentInstance() for _ in range(min_instances)]
         self.target_utilization = target_utilization
 
-        # Start monitoring task
-        asyncio.create_task(self._monitor_and_scale())
-
     async def _monitor_and_scale(self):
-        """Continuously monitor load and scale"""
+        """Periodically check utilization and scale accordingly"""
         while True:
-            await asyncio.sleep(30)  # Check every 30s
+            await asyncio.sleep(30)  # Check every 30 seconds
 
-            # Calculate current utilization
-            total_requests = sum(i.active_requests for i in self.instances)
-            total_capacity = len(self.instances)
-            utilization = total_requests / total_capacity
+            # Calculate current utilization: active requests / total capacity
+            utilization = sum(i.active_requests for i in self.instances) / len(self.instances)
 
-            # Scale up if over-utilized
-            if utilization > self.target_utilization:
-                if len(self.instances) < self.max_instances:
-                    await self._scale_up()
+            # Scale up if over-utilized (e.g., 70% capacity exceeded)
+            if utilization > self.target_utilization and len(self.instances) < self.max_instances:
+                self.instances.append(AgentInstance())  # Add instance
 
-            # Scale down if under-utilized
-            elif utilization < (self.target_utilization * 0.5):
-                if len(self.instances) > self.min_instances:
-                    await self._scale_down()
-
-    async def _scale_up(self):
-        """Add instance to pool"""
-        new_instance = AgentInstance(
-            agent=self.agent_class(),
-            instance_id=f"instance-{len(self.instances)}"
-        )
-        self.instances.append(new_instance)
-        logger.info(f"Scaled up to {len(self.instances)} instances")
-
-    async def _scale_down(self):
-        """Remove instance from pool"""
-        # Find instance with fewest active requests
-        instance = min(self.instances, key=lambda i: i.active_requests)
-
-        # Wait for active requests to complete
-        while instance.active_requests > 0:
-            await asyncio.sleep(1)
-
-        self.instances.remove(instance)
-        logger.info(f"Scaled down to {len(self.instances)} instances")
+            # Scale down if under-utilized (e.g., below 35% capacity)
+            elif utilization < (self.target_utilization * 0.5) and len(self.instances) > self.min_instances:
+                self._drain_and_remove_instance()  # Remove idle instance
 ```
 
 **Design Principle**: **Agent pools provide horizontal scalability—add capacity by adding instances, not increasing instance size**.
@@ -1207,74 +984,37 @@ class TraceContext:
         )
 
 class TracedAgent:
-    """Agent with distributed tracing support"""
+    """Agent instrumented with distributed tracing"""
 
-    def __init__(self, agent_name: str, tracer):
-        self.agent_name = agent_name
-        self.tracer = tracer
-
-    async def handle_request(
-        self,
-        request: dict,
-        trace_context: Optional[TraceContext] = None
-    ) -> dict:
-        """Handle request with tracing"""
-
-        # Create or propagate trace context
+    async def handle_request(self, request: dict, trace_context=None) -> dict:
+        # Create or propagate trace context across agent boundaries
         if trace_context is None:
-            trace_context = TraceContext.create_root()
+            trace_context = TraceContext.create_root()  # Start new trace
 
-        # Start span
+        # Start span for this agent's work
         span = self.tracer.start_span(
             operation_name=f"{self.agent_name}.handle_request",
             trace_id=trace_context.trace_id,
-            span_id=trace_context.span_id,
             parent_span_id=trace_context.parent_span_id
         )
 
         try:
-            # Add metadata to span
-            span.set_tag("agent.name", self.agent_name)
-            span.set_tag("request.id", request.get("id"))
-
-            # Process request
-            start_time = time.time()
+            # Execute work and record metrics
             result = await self._process_request(request, trace_context)
-            duration_ms = (time.time() - start_time) * 1000
-
-            # Record success metrics
             span.set_tag("status", "success")
-            span.set_tag("duration_ms", duration_ms)
-
             return result
-
         except Exception as e:
-            # Record error in span
+            # Record error details in span
             span.set_tag("status", "error")
             span.set_tag("error.type", type(e).__name__)
-            span.set_tag("error.message", str(e))
             raise
-
         finally:
-            # Close span
-            span.finish()
+            span.finish()  # Close span regardless of outcome
 
-    async def _process_request(
-        self,
-        request: dict,
-        trace_context: TraceContext
-    ) -> dict:
-        """Process request (calls other agents with context)"""
-
-        # Call another agent, propagating trace context
-        if self._needs_other_agent(request):
-            child_context = trace_context.create_child()
-            result = await self.other_agent.handle_request(
-                request=request,
-                trace_context=child_context  # Propagate!
-            )
-
-        return result
+    async def _process_request(self, request, trace_context):
+        # When calling another agent, propagate trace context
+        child_context = trace_context.create_child()  # New span, same trace
+        return await self.other_agent.handle_request(request, child_context)
 ```
 
 ### Observability Dashboard
@@ -1552,77 +1292,37 @@ async def test_complete_order_fulfillment_workflow():
 **Goal**: Test system resilience by intentionally injecting failures.
 
 ```python
-import random
-
 class ChaosOrchestrator:
-    """Inject failures to test resilience"""
+    """Inject random failures to validate resilience patterns"""
 
-    def __init__(self, agent: Agent, failure_rate: float = 0.1):
-        self.agent = agent
-        self.failure_rate = failure_rate
+    def __init__(self, agent, failure_rate=0.1):
+        # Wrap agent to randomly inject failures (timeouts, exceptions, slowness)
         self.original_handle = agent.handle_request
-
-        # Wrap agent's handle_request with chaos
         agent.handle_request = self._chaotic_handle_request
 
     async def _chaotic_handle_request(self, *args, **kwargs):
-        """Randomly inject failures"""
-
+        # Randomly fail with configured probability
         if random.random() < self.failure_rate:
-            failure_type = random.choice([
-                "timeout",
-                "exception",
-                "slow_response"
-            ])
-
-            if failure_type == "timeout":
-                await asyncio.sleep(30)  # Simulate timeout
+            failure = random.choice(["timeout", "exception", "slow"])
+            if failure == "timeout":
+                await asyncio.sleep(30)
                 raise TimeoutError("Simulated timeout")
+            elif failure == "exception":
+                raise Exception("Simulated failure")
+            # else: slow response (delay then proceed)
 
-            elif failure_type == "exception":
-                raise Exception("Simulated random failure")
+        return await self.original_handle(*args, **kwargs)  # Normal execution
 
-            elif failure_type == "slow_response":
-                await asyncio.sleep(random.uniform(5, 10))
-
-        # Normal execution
-        return await self.original_handle(self, *args, **kwargs)
-
-@pytest.mark.asyncio
-async def test_system_resilience_under_chaos():
-    """Test system handles random failures gracefully"""
-
-    # Arrange: Inject chaos into agents
-    payment_agent = PaymentAgent()
-    inventory_agent = InventoryAgent()
-
+# Test resilience under chaotic conditions
+async def test_chaos():
+    # Inject 30% failure rate into payment agent, 20% into inventory
     ChaosOrchestrator(payment_agent, failure_rate=0.3)
     ChaosOrchestrator(inventory_agent, failure_rate=0.2)
 
-    orchestrator = OrderFulfillmentOrchestrator(
-        payment_agent=payment_agent,
-        inventory_agent=inventory_agent,
-        shipping_agent=ShippingAgent()
-    )
-
-    # Act: Run many requests
-    results = []
-    for i in range(100):
-        try:
-            result = await orchestrator.fulfill_order(f"order{i}")
-            results.append(result.status)
-        except Exception as e:
-            results.append("failed")
-
-    # Assert: System degrades gracefully
+    # Run 100 requests, expect ~50-60% success despite failures
+    results = [await orchestrator.process() for _ in range(100)]
     success_rate = results.count("success") / len(results)
-
-    # With 30% payment failures and 20% inventory failures,
-    # expect ~50-60% overall success (with retries)
-    assert success_rate > 0.5, f"Success rate too low: {success_rate}"
-
-    # System should not crash completely
-    assert results.count("failed") < 80, "Too many complete failures"
+    assert success_rate > 0.5  # System degrades gracefully, doesn't collapse
 ```
 
 **Design Principle**: **Test in isolation first, then integration, then end-to-end—catch failures early in the pyramid**.
