@@ -36,10 +36,21 @@ Read the series: [https://beena-yatin-kanyal.github.io/agentic-documentation/](h
 - Observability Metrics and Operational Intelligence
 - Advanced Patterns (Contextual Routing, Memory Prefetching, Garbage Collection)
 
+**Part 3: Multi-Agent Systems**
+- Multi-Agent Systems as Microservices Architecture
+- When to Use Multi-Agent Systems (Decision Framework & Complexity Threshold)
+- Communication Patterns (Direct Invocation, Event-Driven, Orchestration, Choreography)
+- Service Discovery and Agent Registry
+- Failure Isolation and Circuit Breakers
+- Load Distribution and Agent Pools
+- Distributed Tracing and Observability
+- Testing Multi-Agent Systems (Component, Integration, E2E, Chaos Testing)
+- Production Failure Modes (Agent Deadlock, Event Storms, Version Skew)
+- Advanced Patterns (Hierarchical Systems, Agent Composition, Competitive Selection)
+
 ### Coming Soon
 
-**Parts 3-10** (Planned)
-- Multi-Agent Systems
+**Parts 4-10** (Planned)
 - Production Operations
 - Advanced Patterns
 - Elicitation & Recovery
@@ -59,6 +70,9 @@ Read the series: [https://beena-yatin-kanyal.github.io/agentic-documentation/](h
 - Four-tier memory hierarchies
 - Token budgeting and compression strategies
 - ACID-compliant memory persistence
+- Multi-agent orchestration and choreography
+- Service discovery and agent registries
+- Distributed tracing across agent boundaries
 
 ## Target Audience
 
