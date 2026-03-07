@@ -37,16 +37,18 @@ Read the series: [https://beena-yatin-kanyal.github.io/agentic-documentation/](h
 - Advanced Patterns (Contextual Routing, Memory Prefetching, Garbage Collection)
 
 **Part 3: Multi-Agent Systems**
-- Multi-Agent Systems as Microservices Architecture
-- When to Use Multi-Agent Systems (Decision Framework & Complexity Threshold)
+- Theoretical Foundations (Multi-Agent as Microservices, Conway's Law, CAP Theorem)
+- When to Use Multi-Agent Systems (Decision Framework & Complexity Threshold Analysis)
 - Communication Patterns (Direct Invocation, Event-Driven, Orchestration, Choreography)
-- Service Discovery and Agent Registry
-- Failure Isolation and Circuit Breakers
-- Load Distribution and Agent Pools
-- Distributed Tracing and Observability
-- Testing Multi-Agent Systems (Component, Integration, E2E, Chaos Testing)
-- Production Failure Modes (Agent Deadlock, Event Storms, Version Skew)
+- Service Discovery and Agent Registry (Dynamic Capability Discovery)
+- Failure Isolation and Circuit Breakers (Bulkhead Pattern, Fail-Fast Mechanisms)
+- Load Distribution and Agent Pools (Horizontal Scaling, Auto-Scaling Strategies)
+- Distributed Tracing and Observability (Trace Context Propagation, Performance Analysis)
+- Testing Multi-Agent Systems (Testing Pyramid, Component/Integration/E2E/Chaos Testing)
+- Production Failure Modes (Agent Deadlock, Event Storms, Version Skew with Mitigation)
 - Advanced Patterns (Hierarchical Systems, Agent Composition, Competitive Selection)
+- Minimal Code Snippets (Concept-focused patterns matching Part 2 style)
+- Enhanced Mermaid Diagrams (Metrics, annotations, and visual clarity)
 
 ### Coming Soon
 
