@@ -1339,6 +1339,11 @@
                 file: 'part-3-multi-agent-systems.md',
                 title: 'Part 3: Multi-Agent Systems',
                 shortTitle: 'Multi-Agent Systems'
+            },
+            4: {
+                file: 'part-4-production-operations.md',
+                title: 'Part 4: Production Operations',
+                shortTitle: 'Production Operations'
             }
         };
 
@@ -1410,6 +1415,7 @@
                     const partTitle = i === 1 ? 'Foundational Architecture' :
                                     i === 2 ? 'Memory & Context Management' :
                                     i === 3 ? 'Multi-Agent Systems' :
+                                    i === 4 ? 'Production Operations' :
                                     `Part ${i} Title`;
                     listItems += `
                         <li class="${className}">
@@ -1424,8 +1430,7 @@
                     icon = '○';
                     status = 'Planned';
                     const titles = [
-                        '', '', '', '', // Parts 1-3 covered above
-                        'Production Operations',
+                        '', '', '', '', '', // Parts 1-4 covered above
                         'Advanced Patterns',
                         'Elicitation & Recovery',
                         'Tool Design Principles',
