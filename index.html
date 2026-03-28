@@ -1344,6 +1344,11 @@
                 file: 'part-4-production-operations.md',
                 title: 'Part 4: Production Operations',
                 shortTitle: 'Production Operations'
+            },
+            5: {
+                file: 'part-5-testing-and-quality-assurance.md',
+                title: 'Part 5: Testing & Quality Assurance',
+                shortTitle: 'Testing & Quality Assurance'
             }
         };
 
@@ -1416,6 +1421,7 @@
                                     i === 2 ? 'Memory & Context Management' :
                                     i === 3 ? 'Multi-Agent Systems' :
                                     i === 4 ? 'Production Operations' :
+                                    i === 5 ? 'Testing & Quality Assurance' :
                                     `Part ${i} Title`;
                     listItems += `
                         <li class="${className}">
@@ -1430,12 +1436,11 @@
                     icon = '○';
                     status = 'Planned';
                     const titles = [
-                        '', '', '', '', '', // Parts 1-4 covered above
+                        '', '', '', '', '', '', // Parts 1-5 covered above
                         'Advanced Patterns',
                         'Elicitation & Recovery',
                         'Tool Design Principles',
                         'State Machine Architecture',
-                        'Execution Strategies',
                         'Observability & Intelligence'
                     ];
                     listItems += `
@@ -1567,11 +1572,11 @@ npx http-server -p 8000</code></pre>
             const partTitles = {
                 3: 'Part 3: Multi-Agent Systems',
                 4: 'Part 4: Production Operations',
-                5: 'Part 5: Advanced Patterns',
-                6: 'Part 6: Elicitation & Recovery',
-                7: 'Part 7: Tool Design Principles',
-                8: 'Part 8: State Machine Architecture',
-                9: 'Part 9: Execution Strategies',
+                5: 'Part 5: Testing & Quality Assurance',
+                6: 'Part 6: Advanced Patterns',
+                7: 'Part 7: Elicitation & Recovery',
+                8: 'Part 8: Tool Design Principles',
+                9: 'Part 9: State Machine Architecture',
                 10: 'Part 10: Observability & Intelligence'
             };
 
