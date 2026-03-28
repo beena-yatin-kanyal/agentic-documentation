@@ -50,15 +50,36 @@ Read the series: [https://beena-yatin-kanyal.github.io/agentic-documentation/](h
 - Minimal Code Snippets (Concept-focused patterns matching Part 2 style)
 - Enhanced Mermaid Diagrams (Metrics, annotations, and visual clarity)
 
+**Part 4: Production Operations**
+- Theoretical Foundations (SRE Principles, Four Golden Signals for Agent Systems)
+- Deployment Strategies (Blue-Green Deployments, Canary Releases with Automatic Rollback)
+- Monitoring and Alerting (Symptom-Based Alerting, SLO Management, Operational Dashboards)
+- Cost Management (Token Optimization, Model Tiering, Response Caching, 68% Cost Reduction Analysis)
+- Incident Response (Severity Classification, Automated Diagnostics, Runbook Procedures)
+- Performance Optimization (Parallel Tool Execution, Context Preloading, Multi-Layer Caching)
+- Capacity Planning (Queuing Theory Models, Growth Forecasting, Auto-Scaling Strategies)
+- Security Operations (Secrets Management, Tenant Isolation, Security Monitoring)
+- Production Failure Modes (Memory Leaks, Token Budget Exhaustion, Cascading Deployment Failures)
+
+**Part 5: Testing & Quality Assurance**
+- Theoretical Foundations (Testing as Empirical Verification, Inverted Testing Pyramid, Quality Metrics)
+- Component Testing (Memory System Tests, Token Budget Enforcement, Circuit Breaker Validation)
+- Integration Testing (Tool Execution Chains, Multi-Agent Communication)
+- End-to-End Testing (LLM-as-Judge Evaluation, Statistical Validation, Quality Scoring)
+- Adversarial Testing (Red Team Testing, Prompt Injection, Privacy Violations, Content Safety)
+- Regression Testing (Golden Dataset Evaluation, Continuous Quality Monitoring)
+- Production Testing (Shadow Testing, A/B Testing with Statistical Significance)
+- Observability (Test Quality Metrics, Coverage Tracking, Regression Visualization)
+- CI/CD Integration (Automated Test Pipelines, Multi-Stage Validation)
+- Best Practices (Seven Principles of Agent Testing, Testing Maturity Model)
+
 ### Coming Soon
 
-**Parts 4-10** (Planned)
-- Production Operations
+**Parts 6-10** (Planned)
 - Advanced Patterns
 - Elicitation & Recovery
 - Tool Design Principles
 - State Machine Architecture
-- Execution Strategies
 - Observability & Intelligence
 
 ## Architecture Focus
@@ -75,6 +96,14 @@ Read the series: [https://beena-yatin-kanyal.github.io/agentic-documentation/](h
 - Multi-agent orchestration and choreography
 - Service discovery and agent registries
 - Distributed tracing across agent boundaries
+- Blue-green and canary deployment strategies
+- SRE principles and golden signal monitoring
+- Cost optimization and capacity planning
+- Automated incident response procedures
+- Statistical validation and LLM-as-Judge evaluation
+- Adversarial testing and red team exercises
+- Golden dataset regression detection
+- Production testing with shadow and A/B strategies
 
 ## Target Audience
 
